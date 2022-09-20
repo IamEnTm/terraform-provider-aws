@@ -54,7 +54,7 @@ func ResourceTrafficPolicy() *schema.Resource {
 			"document": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ForceNew:     true,
+				ForceNew:     false,
 				ValidateFunc: validation.StringLenBetween(0, 102400),
 			},
 			"name": {
@@ -128,21 +128,31 @@ func resourceTrafficPolicyRead(ctx context.Context, d *schema.ResourceData, meta
 
 func resourceTrafficPolicyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conn := meta.(*conns.AWSClient).Route53Conn
+	var err error
 
-	input := &route53.UpdateTrafficPolicyCommentInput{
-		Id:      aws.String(d.Id()),
-		Version: aws.Int64(int64(d.Get("version").(int))),
+	if d.HasChange("document") {
+		input := &route53.CreateTrafficPolicyVersionInput{
+			Id:       aws.String(d.Id()),
+			Document: aws.String(d.Get("document").(string)),
+			Comment:  aws.String(d.Get("comment").(string)),
+		}
+
+		log.Printf("[INFO] Creating Route53 Traffic Policy version: %s", input)
+		_, err = conn.CreateTrafficPolicyVersionWithContext(ctx, input)
+
+	} else if d.HasChange("comment") {
+		input := &route53.UpdateTrafficPolicyCommentInput{
+			Id:      aws.String(d.Id()),
+			Version: aws.Int64(int64(d.Get("version").(int))),
+			Comment: aws.String(d.Get("comment").(string)),
+		}
+
+		log.Printf("[INFO] Updating Route53 Traffic Policy comment: %s", input)
+		_, err = conn.UpdateTrafficPolicyCommentWithContext(ctx, input)
 	}
-
-	if d.HasChange("comment") {
-		input.Comment = aws.String(d.Get("comment").(string))
-	}
-
-	log.Printf("[INFO] Updating Route53 Traffic Policy comment: %s", input)
-	_, err := conn.UpdateTrafficPolicyCommentWithContext(ctx, input)
 
 	if err != nil {
-		return diag.Errorf("error updating Route53 Traffic Policy (%s) comment: %s", d.Id(), err)
+		return diag.Errorf("error updating Route53 Traffic Policy (%s): %s", d.Id(), err)
 	}
 
 	return resourceTrafficPolicyRead(ctx, d, meta)
