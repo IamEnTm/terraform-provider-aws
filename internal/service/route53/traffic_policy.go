@@ -22,7 +22,11 @@ import (
 	"github.com/hashicorp/terraform-provider-aws/internal/errs/sdkdiag"
 	tfslices "github.com/hashicorp/terraform-provider-aws/internal/slices"
 	"github.com/hashicorp/terraform-provider-aws/internal/tfresource"
+<<<<<<< HEAD
 	"github.com/hashicorp/terraform-provider-aws/names"
+=======
+	"github.com/hashicorp/terraform-provider-aws/internal/verify"
+>>>>>>> e461eb28c3 (Add dns record automatic version update support)
 )
 
 // @SDKResource("aws_route53_traffic_policy", name="Traffic Policy")
@@ -81,6 +85,8 @@ func resourceTrafficPolicy() *schema.Resource {
 				Computed: true,
 			},
 		},
+
+		CustomizeDiff: updateComputedAttributesOnPublish,
 	}
 }
 
@@ -134,6 +140,19 @@ func resourceTrafficPolicyRead(ctx context.Context, d *schema.ResourceData, meta
 	d.Set(names.AttrVersion, trafficPolicy.Version)
 
 	return diags
+}
+
+func updateComputedAttributesOnPublish(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
+	configChanged := hasConfigChanges(d)
+	if configChanged {
+		d.SetNewComputed("version")
+	}
+
+	return nil
+}
+
+func hasConfigChanges(d verify.ResourceDiffer) bool {
+	return d.HasChange("document")
 }
 
 func resourceTrafficPolicyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
