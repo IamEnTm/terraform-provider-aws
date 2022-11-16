@@ -15,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/hashicorp/terraform-provider-aws/internal/conns"
 	"github.com/hashicorp/terraform-provider-aws/internal/tfresource"
+	"github.com/hashicorp/terraform-provider-aws/internal/verify"
 )
 
 func ResourceTrafficPolicy() *schema.Resource {
@@ -72,6 +73,8 @@ func ResourceTrafficPolicy() *schema.Resource {
 				Computed: true,
 			},
 		},
+
+		CustomizeDiff: updateComputedAttributesOnPublish,
 	}
 }
 
@@ -124,6 +127,19 @@ func resourceTrafficPolicyRead(ctx context.Context, d *schema.ResourceData, meta
 	d.Set("version", trafficPolicy.Version)
 
 	return nil
+}
+
+func updateComputedAttributesOnPublish(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
+	configChanged := hasConfigChanges(d)
+	if configChanged {
+		d.SetNewComputed("version")
+	}
+
+	return nil
+}
+
+func hasConfigChanges(d verify.ResourceDiffer) bool {
+	return d.HasChange("document")
 }
 
 func resourceTrafficPolicyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
