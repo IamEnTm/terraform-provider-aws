@@ -1,23 +1,29 @@
 archives:
   - files:
       # Ensure only built binary is archived
-      - "none*"
+      - 'none*'
     format: zip
-    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}'
 before:
   hooks:
-    - "go mod download"
+    - 'go mod download'
 builds:
-  - # Binary naming only required for Terraform CLI 0.12
-    binary: "{{ .ProjectName }}_v{{ .Version }}_x5"
+  -
+    # Binary naming only required for Terraform CLI 0.12
+    binary: '{{ .ProjectName }}_v{{ .Version }}_x5'
     env:
       - CGO_ENABLED=0
     flags:
       - -trimpath
     goos:
+      - darwin
+      - freebsd
       - linux
+      - windows
     goarch:
+      - '386'
       - amd64
+      - arm
       - arm64
     ignore:
       - goarch: arm
@@ -28,13 +34,13 @@ builds:
         goos: windows
     ldflags:
       - -s -w -X version.ProviderVersion={{.Version}}
-    mod_timestamp: "{{ .CommitTimestamp }}"
+    mod_timestamp: '{{ .CommitTimestamp }}'
 checksum:
   algorithm: sha256
   extra_files:
-    - glob: "terraform-registry-manifest.json"
-      name_template: "{{ .ProjectName }}_{{ .Version }}_manifest.json"
-  name_template: "{{ .ProjectName }}_{{ .Version }}_SHA256SUMS"
+    - glob: 'terraform-registry-manifest.json'
+      name_template: '{{ .ProjectName }}_{{ .Version }}_manifest.json'
+  name_template: '{{ .ProjectName }}_{{ .Version }}_SHA256SUMS'
 publishers:
   - checksum: true
     # Terraform CLI 0.10 - 0.11 perform discovery via HTTP headers on releases.hashicorp.com
@@ -46,25 +52,25 @@ publishers:
     cmd: |
       hc-releases upload -product {{ .ProjectName }} -version {{ .Version }} -file={{ .ArtifactPath }}={{ .ArtifactName }} -header=x-terraform-protocol-version=5 -header=x-terraform-protocol-versions=5.0
     extra_files:
-      - glob: "terraform-registry-manifest.json"
-        name_template: "{{ .ProjectName }}_{{ .Version }}_manifest.json"
+      - glob: 'terraform-registry-manifest.json'
+        name_template: '{{ .ProjectName }}_{{ .Version }}_manifest.json'
     name: upload
     signature: true
 release:
   extra_files:
-    - glob: "terraform-registry-manifest.json"
-      name_template: "{{ .ProjectName }}_{{ .Version }}_manifest.json"
+    - glob: 'terraform-registry-manifest.json'
+      name_template: '{{ .ProjectName }}_{{ .Version }}_manifest.json'
   ids:
     - none
 signs:
-  - artifacts: checksum
-    args:
-      # if you are using this in a GitHub action or some other automated pipeline, you
-      # need to pass the batch flag to indicate its not interactive.
-      - "--batch"
-      - "--local-user"
-      - "63D5B27573EDD8BD" # set this environment variable for your signing key
-      - "--output"
-      - "${signature}"
-      - "--detach-sign"
-      - "${artifact}"
+  - args: ["sign", "--dearmor", "--file", "${artifact}", "--out", "${signature}"]
+    artifacts: checksum
+    cmd: signore
+    signature: ${artifact}.sig
+  - args: ["sign", "--dearmor", "--file", "${artifact}", "--out", "${signature}"]
+    artifacts: checksum
+    cmd: signore
+    id: key-id
+    signature: ${artifact}.72D7468F.sig
+snapshot:
+  name_template: "{{ .Tag }}-next"
