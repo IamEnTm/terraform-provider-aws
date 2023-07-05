@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 //go:build sweep
 // +build sweep
 
@@ -10,8 +13,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/transcribe"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-provider-aws/internal/conns"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-aws/internal/sweep"
 )
 
@@ -52,12 +54,12 @@ func init() {
 
 func sweepLanguageModels(region string) error {
 	ctx := sweep.Context(region)
-	client, err := sweep.SharedRegionalSweepClient(region)
+	client, err := sweep.SharedRegionalSweepClient(ctx, region)
 	if err != nil {
 		fmt.Errorf("error getting client: %s", err)
 	}
 
-	conn := client.(*conns.AWSClient).TranscribeClient()
+	conn := client.TranscribeClient(ctx)
 	sweepResources := make([]sweep.Sweepable, 0)
 	in := &transcribe.ListLanguageModelsInput{}
 	var errs *multierror.Error
@@ -102,12 +104,12 @@ func sweepLanguageModels(region string) error {
 
 func sweepMedicalVocabularies(region string) error {
 	ctx := sweep.Context(region)
-	client, err := sweep.SharedRegionalSweepClient(region)
+	client, err := sweep.SharedRegionalSweepClient(ctx, region)
 	if err != nil {
 		fmt.Errorf("error getting client: %s", err)
 	}
 
-	conn := client.(*conns.AWSClient).TranscribeClient()
+	conn := client.TranscribeClient(ctx)
 	sweepResources := make([]sweep.Sweepable, 0)
 	in := &transcribe.ListMedicalVocabulariesInput{}
 	var errs *multierror.Error
@@ -153,12 +155,12 @@ func sweepMedicalVocabularies(region string) error {
 
 func sweepVocabularies(region string) error {
 	ctx := sweep.Context(region)
-	client, err := sweep.SharedRegionalSweepClient(region)
+	client, err := sweep.SharedRegionalSweepClient(ctx, region)
 	if err != nil {
 		fmt.Errorf("error getting client: %s", err)
 	}
 
-	conn := client.(*conns.AWSClient).TranscribeClient()
+	conn := client.TranscribeClient(ctx)
 	sweepResources := make([]sweep.Sweepable, 0)
 	in := &transcribe.ListVocabulariesInput{}
 	var errs *multierror.Error
@@ -204,12 +206,12 @@ func sweepVocabularies(region string) error {
 
 func sweepVocabularyFilters(region string) error {
 	ctx := sweep.Context(region)
-	client, err := sweep.SharedRegionalSweepClient(region)
+	client, err := sweep.SharedRegionalSweepClient(ctx, region)
 	if err != nil {
 		fmt.Errorf("error getting client: %s", err)
 	}
 
-	conn := client.(*conns.AWSClient).TranscribeClient()
+	conn := client.TranscribeClient(ctx)
 	sweepResources := make([]sweep.Sweepable, 0)
 	in := &transcribe.ListVocabularyFiltersInput{}
 	var errs *multierror.Error

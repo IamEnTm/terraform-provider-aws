@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 //go:build sweep
 // +build sweep
 
@@ -10,8 +13,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/wafv2"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-provider-aws/internal/conns"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-aws/internal/sweep"
 )
 
@@ -50,11 +52,11 @@ func init() {
 
 func sweepIPSets(region string) error {
 	ctx := sweep.Context(region)
-	client, err := sweep.SharedRegionalSweepClient(region)
+	client, err := sweep.SharedRegionalSweepClient(ctx, region)
 	if err != nil {
 		return fmt.Errorf("error getting client: %s", err)
 	}
-	conn := client.(*conns.AWSClient).WAFV2Conn()
+	conn := client.WAFV2Conn(ctx)
 	input := &wafv2.ListIPSetsInput{
 		Scope: aws.String(wafv2.ScopeRegional),
 	}
@@ -99,11 +101,11 @@ func sweepIPSets(region string) error {
 
 func sweepRegexPatternSets(region string) error {
 	ctx := sweep.Context(region)
-	client, err := sweep.SharedRegionalSweepClient(region)
+	client, err := sweep.SharedRegionalSweepClient(ctx, region)
 	if err != nil {
 		return fmt.Errorf("error getting client: %s", err)
 	}
-	conn := client.(*conns.AWSClient).WAFV2Conn()
+	conn := client.WAFV2Conn(ctx)
 	input := &wafv2.ListRegexPatternSetsInput{
 		Scope: aws.String(wafv2.ScopeRegional),
 	}
@@ -148,11 +150,11 @@ func sweepRegexPatternSets(region string) error {
 
 func sweepRuleGroups(region string) error {
 	ctx := sweep.Context(region)
-	client, err := sweep.SharedRegionalSweepClient(region)
+	client, err := sweep.SharedRegionalSweepClient(ctx, region)
 	if err != nil {
 		return fmt.Errorf("error getting client: %s", err)
 	}
-	conn := client.(*conns.AWSClient).WAFV2Conn()
+	conn := client.WAFV2Conn(ctx)
 	input := &wafv2.ListRuleGroupsInput{
 		Scope: aws.String(wafv2.ScopeRegional),
 	}
@@ -197,11 +199,11 @@ func sweepRuleGroups(region string) error {
 
 func sweepWebACLs(region string) error {
 	ctx := sweep.Context(region)
-	client, err := sweep.SharedRegionalSweepClient(region)
+	client, err := sweep.SharedRegionalSweepClient(ctx, region)
 	if err != nil {
 		return fmt.Errorf("error getting client: %s", err)
 	}
-	conn := client.(*conns.AWSClient).WAFV2Conn()
+	conn := client.WAFV2Conn(ctx)
 	input := &wafv2.ListWebACLsInput{
 		Scope: aws.String(wafv2.ScopeRegional),
 	}

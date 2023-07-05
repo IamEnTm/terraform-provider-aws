@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 //go:build sweep
 // +build sweep
 
@@ -10,8 +13,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/memorydb"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-provider-aws/internal/conns"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-aws/internal/sweep"
 )
 
@@ -64,11 +66,11 @@ func init() {
 
 func sweepACLs(region string) error {
 	ctx := sweep.Context(region)
-	client, err := sweep.SharedRegionalSweepClient(region)
+	client, err := sweep.SharedRegionalSweepClient(ctx, region)
 	if err != nil {
 		return fmt.Errorf("error getting client: %w", err)
 	}
-	conn := client.(*conns.AWSClient).MemoryDBConn()
+	conn := client.MemoryDBConn(ctx)
 	input := &memorydb.DescribeACLsInput{}
 	sweepResources := make([]sweep.Sweepable, 0)
 
@@ -114,11 +116,11 @@ func sweepACLs(region string) error {
 
 func sweepClusters(region string) error {
 	ctx := sweep.Context(region)
-	client, err := sweep.SharedRegionalSweepClient(region)
+	client, err := sweep.SharedRegionalSweepClient(ctx, region)
 	if err != nil {
 		return fmt.Errorf("error getting client: %w", err)
 	}
-	conn := client.(*conns.AWSClient).MemoryDBConn()
+	conn := client.MemoryDBConn(ctx)
 	input := &memorydb.DescribeClustersInput{}
 	sweepResources := make([]sweep.Sweepable, 0)
 
@@ -158,11 +160,11 @@ func sweepClusters(region string) error {
 
 func sweepParameterGroups(region string) error {
 	ctx := sweep.Context(region)
-	client, err := sweep.SharedRegionalSweepClient(region)
+	client, err := sweep.SharedRegionalSweepClient(ctx, region)
 	if err != nil {
 		return fmt.Errorf("error getting client: %w", err)
 	}
-	conn := client.(*conns.AWSClient).MemoryDBConn()
+	conn := client.MemoryDBConn(ctx)
 	input := &memorydb.DescribeParameterGroupsInput{}
 	sweepResources := make([]sweep.Sweepable, 0)
 
@@ -208,11 +210,11 @@ func sweepParameterGroups(region string) error {
 
 func sweepSnapshots(region string) error {
 	ctx := sweep.Context(region)
-	client, err := sweep.SharedRegionalSweepClient(region)
+	client, err := sweep.SharedRegionalSweepClient(ctx, region)
 	if err != nil {
 		return fmt.Errorf("error getting client: %w", err)
 	}
-	conn := client.(*conns.AWSClient).MemoryDBConn()
+	conn := client.MemoryDBConn(ctx)
 	input := &memorydb.DescribeSnapshotsInput{}
 	sweepResources := make([]sweep.Sweepable, 0)
 
@@ -252,11 +254,11 @@ func sweepSnapshots(region string) error {
 
 func sweepSubnetGroups(region string) error {
 	ctx := sweep.Context(region)
-	client, err := sweep.SharedRegionalSweepClient(region)
+	client, err := sweep.SharedRegionalSweepClient(ctx, region)
 	if err != nil {
 		return fmt.Errorf("error getting client: %w", err)
 	}
-	conn := client.(*conns.AWSClient).MemoryDBConn()
+	conn := client.MemoryDBConn(ctx)
 	input := &memorydb.DescribeSubnetGroupsInput{}
 	sweepResources := make([]sweep.Sweepable, 0)
 
@@ -302,11 +304,11 @@ func sweepSubnetGroups(region string) error {
 
 func sweepUsers(region string) error {
 	ctx := sweep.Context(region)
-	client, err := sweep.SharedRegionalSweepClient(region)
+	client, err := sweep.SharedRegionalSweepClient(ctx, region)
 	if err != nil {
 		return fmt.Errorf("error getting client: %w", err)
 	}
-	conn := client.(*conns.AWSClient).MemoryDBConn()
+	conn := client.MemoryDBConn(ctx)
 	input := &memorydb.DescribeUsersInput{}
 	sweepResources := make([]sweep.Sweepable, 0)
 

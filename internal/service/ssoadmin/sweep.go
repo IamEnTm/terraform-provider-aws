@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 //go:build sweep
 // +build sweep
 
@@ -11,10 +14,10 @@ import (
 	"github.com/aws/aws-sdk-go/service/ssoadmin"
 	"github.com/hashicorp/aws-sdk-go-base/v2/awsv1shim/v2/tfawserr"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-provider-aws/internal/conns"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-aws/internal/sweep"
+	"github.com/hashicorp/terraform-provider-aws/internal/sweep/sdk"
 )
 
 func init() {
@@ -34,11 +37,11 @@ func init() {
 
 func sweepAccountAssignments(region string) error {
 	ctx := sweep.Context(region)
-	client, err := sweep.SharedRegionalSweepClient(region)
+	client, err := sweep.SharedRegionalSweepClient(ctx, region)
 	if err != nil {
 		return fmt.Errorf("error getting client: %w", err)
 	}
-	conn := client.(*conns.AWSClient).SSOAdminConn()
+	conn := client.SSOAdminConn(ctx)
 
 	sweepResources := make([]sweep.Sweepable, 0)
 	var sweeperErrs *multierror.Error
@@ -48,7 +51,7 @@ func sweepAccountAssignments(region string) error {
 	ds := DataSourceInstances()
 	dsData := ds.Data(nil)
 
-	err = sweep.ReadResource(ctx, ds, dsData, client)
+	err = sdk.ReadResource(ctx, ds, dsData, client)
 
 	if tfawserr.ErrCodeContains(err, "AccessDenied") {
 		log.Printf("[WARN] Skipping SSO Account Assignment sweep for %s: %s", region, err)
@@ -80,7 +83,7 @@ func sweepAccountAssignments(region string) error {
 			permissionSetArn := aws.StringValue(permissionSet)
 
 			input := &ssoadmin.ListAccountAssignmentsInput{
-				AccountId:        aws.String(client.(*conns.AWSClient).AccountID),
+				AccountId:        aws.String(client.AccountID),
 				InstanceArn:      aws.String(instanceArn),
 				PermissionSetArn: permissionSet,
 			}
@@ -139,11 +142,11 @@ func sweepAccountAssignments(region string) error {
 
 func sweepPermissionSets(region string) error {
 	ctx := sweep.Context(region)
-	client, err := sweep.SharedRegionalSweepClient(region)
+	client, err := sweep.SharedRegionalSweepClient(ctx, region)
 	if err != nil {
 		return fmt.Errorf("error getting client: %w", err)
 	}
-	conn := client.(*conns.AWSClient).SSOAdminConn()
+	conn := client.SSOAdminConn(ctx)
 
 	sweepResources := make([]sweep.Sweepable, 0)
 	var sweeperErrs *multierror.Error
@@ -153,7 +156,7 @@ func sweepPermissionSets(region string) error {
 	ds := DataSourceInstances()
 	dsData := ds.Data(nil)
 
-	err = sweep.ReadResource(ctx, ds, dsData, client)
+	err = sdk.ReadResource(ctx, ds, dsData, client)
 
 	if tfawserr.ErrCodeContains(err, "AccessDenied") {
 		log.Printf("[WARN] Skipping SSO Permission Set sweep for %s: %s", region, err)

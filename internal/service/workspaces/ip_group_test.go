@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 package workspaces_test
 
 import (
@@ -8,9 +11,9 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/workspaces"
-	sdkacctest "github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	sdkacctest "github.com/hashicorp/terraform-plugin-testing/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-aws/internal/acctest"
 	"github.com/hashicorp/terraform-provider-aws/internal/conns"
 	tfworkspaces "github.com/hashicorp/terraform-provider-aws/internal/service/workspaces"
@@ -173,7 +176,7 @@ func testAccCheckIPGroupDestroy(ctx context.Context) resource.TestCheckFunc {
 				continue
 			}
 
-			conn := acctest.Provider.Meta().(*conns.AWSClient).WorkSpacesConn()
+			conn := acctest.Provider.Meta().(*conns.AWSClient).WorkSpacesConn(ctx)
 			resp, err := conn.DescribeIpGroupsWithContext(ctx, &workspaces.DescribeIpGroupsInput{
 				GroupIds: []*string{aws.String(rs.Primary.ID)},
 			})
@@ -207,7 +210,7 @@ func testAccCheckIPGroupExists(ctx context.Context, n string, v *workspaces.IpGr
 			return fmt.Errorf("No Workpsaces IP Group ID is set")
 		}
 
-		conn := acctest.Provider.Meta().(*conns.AWSClient).WorkSpacesConn()
+		conn := acctest.Provider.Meta().(*conns.AWSClient).WorkSpacesConn(ctx)
 		resp, err := conn.DescribeIpGroupsWithContext(ctx, &workspaces.DescribeIpGroupsInput{
 			GroupIds: []*string{aws.String(rs.Primary.ID)},
 		})

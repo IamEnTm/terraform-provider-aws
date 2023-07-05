@@ -1,9 +1,13 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 package ec2
 
 import (
 	"context"
 	"strconv"
 
+	ec2_sdkv2 "github.com/aws/aws-sdk-go-v2/service/ec2"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
@@ -469,6 +473,22 @@ func StatusSpotFleetRequestState(ctx context.Context, conn *ec2.EC2, id string) 
 	}
 }
 
+func StatusSpotInstanceRequest(ctx context.Context, conn *ec2.EC2, id string) retry.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		output, err := FindSpotInstanceRequestByID(ctx, conn, id)
+
+		if tfresource.NotFound(err) {
+			return nil, "", nil
+		}
+
+		if err != nil {
+			return nil, "", err
+		}
+
+		return output, aws.StringValue(output.Status.Code), nil
+	}
+}
+
 func StatusSubnetState(ctx context.Context, conn *ec2.EC2, id string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		output, err := FindSubnetByID(ctx, conn, id)
@@ -530,6 +550,22 @@ func StatusSubnetEnableDNS64(ctx context.Context, conn *ec2.EC2, id string) retr
 		}
 
 		return output, strconv.FormatBool(aws.BoolValue(output.EnableDns64)), nil
+	}
+}
+
+func StatusSubnetEnableLniAtDeviceIndex(ctx context.Context, conn *ec2.EC2, id string) retry.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		output, err := FindSubnetByID(ctx, conn, id)
+
+		if tfresource.NotFound(err) {
+			return nil, "", nil
+		}
+
+		if err != nil {
+			return nil, "", err
+		}
+
+		return output, strconv.FormatInt(aws.Int64Value(output.EnableLniAtDeviceIndex), 10), nil
 	}
 }
 
@@ -1412,5 +1448,21 @@ func StatusIPAMScopeState(ctx context.Context, conn *ec2.EC2, id string) retry.S
 		}
 
 		return output, aws.StringValue(output.State), nil
+	}
+}
+
+func StatusInstanceConnectEndpointState(ctx context.Context, conn *ec2_sdkv2.Client, id string) retry.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		output, err := FindInstanceConnectEndpointByID(ctx, conn, id)
+
+		if tfresource.NotFound(err) {
+			return nil, "", nil
+		}
+
+		if err != nil {
+			return nil, "", err
+		}
+
+		return output, string(output.State), nil
 	}
 }

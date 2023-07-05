@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 //go:build sweep
 // +build sweep
 
@@ -10,8 +13,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	r53rcc "github.com/aws/aws-sdk-go/service/route53recoverycontrolconfig"
 	multierror "github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-provider-aws/internal/conns"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-aws/internal/sweep"
 )
 
@@ -46,11 +48,11 @@ func init() {
 
 func sweepClusters(region string) error {
 	ctx := sweep.Context(region)
-	client, err := sweep.SharedRegionalSweepClient(region)
+	client, err := sweep.SharedRegionalSweepClient(ctx, region)
 	if err != nil {
 		return fmt.Errorf("error getting client: %w", err)
 	}
-	conn := client.(*conns.AWSClient).Route53RecoveryControlConfigConn()
+	conn := client.Route53RecoveryControlConfigConn(ctx)
 	input := &r53rcc.ListClustersInput{}
 	sweepResources := make([]sweep.Sweepable, 0)
 
@@ -90,11 +92,11 @@ func sweepClusters(region string) error {
 
 func sweepControlPanels(region string) error {
 	ctx := sweep.Context(region)
-	client, err := sweep.SharedRegionalSweepClient(region)
+	client, err := sweep.SharedRegionalSweepClient(ctx, region)
 	if err != nil {
 		return fmt.Errorf("error getting client: %w", err)
 	}
-	conn := client.(*conns.AWSClient).Route53RecoveryControlConfigConn()
+	conn := client.Route53RecoveryControlConfigConn(ctx)
 	input := &r53rcc.ListClustersInput{}
 	var sweeperErrs *multierror.Error
 	sweepResources := make([]sweep.Sweepable, 0)
@@ -161,11 +163,11 @@ func sweepControlPanels(region string) error {
 
 func sweepRoutingControls(region string) error {
 	ctx := sweep.Context(region)
-	client, err := sweep.SharedRegionalSweepClient(region)
+	client, err := sweep.SharedRegionalSweepClient(ctx, region)
 	if err != nil {
 		return fmt.Errorf("error getting client: %w", err)
 	}
-	conn := client.(*conns.AWSClient).Route53RecoveryControlConfigConn()
+	conn := client.Route53RecoveryControlConfigConn(ctx)
 	input := &r53rcc.ListClustersInput{}
 	var sweeperErrs *multierror.Error
 	sweepResources := make([]sweep.Sweepable, 0)
@@ -250,11 +252,11 @@ func sweepRoutingControls(region string) error {
 
 func sweepSafetyRules(region string) error {
 	ctx := sweep.Context(region)
-	client, err := sweep.SharedRegionalSweepClient(region)
+	client, err := sweep.SharedRegionalSweepClient(ctx, region)
 	if err != nil {
 		return fmt.Errorf("error getting client: %w", err)
 	}
-	conn := client.(*conns.AWSClient).Route53RecoveryControlConfigConn()
+	conn := client.Route53RecoveryControlConfigConn(ctx)
 	input := &r53rcc.ListClustersInput{}
 	var sweeperErrs *multierror.Error
 	sweepResources := make([]sweep.Sweepable, 0)

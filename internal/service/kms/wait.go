@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 package kms
 
 import (
@@ -45,7 +48,7 @@ func WaitIAMPropagation[T any](ctx context.Context, f func() (T, error)) (T, err
 		return zero, err
 	}
 
-	return outputRaw.(T), err
+	return outputRaw.(T), nil
 }
 
 func WaitKeyDeleted(ctx context.Context, conn *kms.KMS, id string) (*kms.KeyMetadata, error) {
@@ -204,7 +207,7 @@ func WaitKeyValidToPropagated(ctx context.Context, conn *kms.KMS, id string, val
 
 func WaitTagsPropagated(ctx context.Context, conn *kms.KMS, id string, tags tftags.KeyValueTags) error {
 	checkFunc := func() (bool, error) {
-		output, err := ListTags(ctx, conn, id)
+		output, err := listTags(ctx, conn, id)
 
 		if tfawserr.ErrCodeEquals(err, kms.ErrCodeNotFoundException) {
 			return false, nil

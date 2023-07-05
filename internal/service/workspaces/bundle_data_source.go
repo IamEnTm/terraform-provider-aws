@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 package workspaces
 
 import (
@@ -79,7 +82,7 @@ func DataSourceBundle() *schema.Resource {
 
 func dataSourceWorkspaceBundleRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
-	conn := meta.(*conns.AWSClient).WorkSpacesConn()
+	conn := meta.(*conns.AWSClient).WorkSpacesConn(ctx)
 
 	var bundle *workspaces.WorkspaceBundle
 

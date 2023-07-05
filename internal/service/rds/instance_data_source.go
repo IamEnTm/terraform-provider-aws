@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 package rds
 
 import (
@@ -70,11 +73,6 @@ func DataSourceInstance() *schema.Resource {
 				Computed: true,
 			},
 			"db_parameter_groups": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
-			"db_security_groups": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
@@ -213,7 +211,7 @@ func DataSourceInstance() *schema.Resource {
 
 func dataSourceInstanceRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
-	conn := meta.(*conns.AWSClient).RDSConn()
+	conn := meta.(*conns.AWSClient).RDSConn(ctx)
 	ignoreTagsConfig := meta.(*conns.AWSClient).IgnoreTagsConfig
 
 	v, err := findDBInstanceByIDSDKv1(ctx, conn, d.Get("db_instance_identifier").(string))
@@ -237,11 +235,6 @@ func dataSourceInstanceRead(ctx context.Context, d *schema.ResourceData, meta in
 		parameterGroupNames = append(parameterGroupNames, aws.StringValue(v.DBParameterGroupName))
 	}
 	d.Set("db_parameter_groups", parameterGroupNames)
-	var securityGroupNames []string
-	for _, v := range v.DBSecurityGroups {
-		securityGroupNames = append(securityGroupNames, aws.StringValue(v.DBSecurityGroupName))
-	}
-	d.Set("db_security_groups", securityGroupNames)
 	if v.DBSubnetGroup != nil {
 		d.Set("db_subnet_group", v.DBSubnetGroup.DBSubnetGroupName)
 	} else {
@@ -297,10 +290,7 @@ func dataSourceInstanceRead(ctx context.Context, d *schema.ResourceData, meta in
 		d.Set("port", nil)
 	}
 
-	tags, err := ListTags(ctx, conn, d.Get("db_instance_arn").(string))
-	if err != nil {
-		return sdkdiag.AppendErrorf(diags, "listing tags for RDS DB Instance (%s): %s", d.Get("db_instance_arn").(string), err)
-	}
+	tags := KeyValueTags(ctx, v.TagList)
 
 	if err := d.Set("tags", tags.IgnoreAWS().IgnoreConfig(ignoreTagsConfig).Map()); err != nil {
 		return sdkdiag.AppendErrorf(diags, "setting tags: %s", err)
