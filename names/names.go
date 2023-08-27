@@ -29,10 +29,14 @@ const (
 	AccountEndpointID                    = "account"
 	ACMEndpointID                        = "acm"
 	AuditManagerEndpointID               = "auditmanager"
+	CleanRoomsEndpointID                 = "cleanrooms"
 	CloudWatchLogsEndpointID             = "logs"
+	CodeStarConnectionsEndpointID        = "codestar-connections"
+	CodeStarNotificationsEndpointID      = "codestar-notifications"
 	ComprehendEndpointID                 = "comprehend"
 	ComputeOptimizerEndpointID           = "computeoptimizer"
 	DSEndpointID                         = "ds"
+	EMRServerlessEndpointID              = "emrserverless"
 	GlacierEndpointID                    = "glacier"
 	IdentityStoreEndpointID              = "identitystore"
 	Inspector2EndpointID                 = "inspector2"
@@ -108,6 +112,10 @@ func readCSVIntoServiceData() error {
 		}
 
 		if l[ColExclude] != "" {
+			continue
+		}
+
+		if l[ColNotImplemented] != "" {
 			continue
 		}
 

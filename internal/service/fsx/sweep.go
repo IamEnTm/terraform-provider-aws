@@ -26,18 +26,26 @@ func init() {
 	resource.AddTestSweepers("aws_fsx_lustre_file_system", &resource.Sweeper{
 		Name: "aws_fsx_lustre_file_system",
 		F:    sweepLustreFileSystems,
+		Dependencies: []string{
+			"aws_datasync_location",
+		},
 	})
 
 	resource.AddTestSweepers("aws_fsx_ontap_file_system", &resource.Sweeper{
-		Name:         "aws_fsx_ontap_file_system",
-		F:            sweepOntapFileSystems,
-		Dependencies: []string{"aws_fsx_ontap_storage_virtual_machine"},
+		Name: "aws_fsx_ontap_file_system",
+		F:    sweepOntapFileSystems,
+		Dependencies: []string{
+			"aws_datasync_location",
+			"aws_fsx_ontap_storage_virtual_machine",
+		},
 	})
 
 	resource.AddTestSweepers("aws_fsx_ontap_storage_virtual_machine", &resource.Sweeper{
-		Name:         "aws_fsx_ontap_storage_virtual_machine",
-		F:            sweepOntapStorageVirtualMachine,
-		Dependencies: []string{"aws_fsx_ontap_volume"},
+		Name: "aws_fsx_ontap_storage_virtual_machine",
+		F:    sweepOntapStorageVirtualMachine,
+		Dependencies: []string{
+			"aws_fsx_ontap_volume",
+		},
 	})
 
 	resource.AddTestSweepers("aws_fsx_ontap_volume", &resource.Sweeper{
@@ -48,6 +56,10 @@ func init() {
 	resource.AddTestSweepers("aws_fsx_openzfs_file_system", &resource.Sweeper{
 		Name: "aws_fsx_openzfs_file_system",
 		F:    sweepOpenZFSFileSystems,
+		Dependencies: []string{
+			"aws_datasync_location",
+			"aws_fsx_openzfs_volume",
+		},
 	})
 
 	resource.AddTestSweepers("aws_fsx_openzfs_volume", &resource.Sweeper{
@@ -59,6 +71,7 @@ func init() {
 		Name: "aws_fsx_windows_file_system",
 		F:    sweepWindowsFileSystems,
 		Dependencies: []string{
+			"aws_datasync_location",
 			"aws_storagegateway_file_system_association",
 		},
 	})
@@ -97,7 +110,7 @@ func sweepBackups(region string) error {
 		errs = multierror.Append(errs, fmt.Errorf("error listing FSx Backups for %s: %w", region, err))
 	}
 
-	if err = sweep.SweepOrchestratorWithContext(ctx, sweepResources); err != nil {
+	if err = sweep.SweepOrchestrator(ctx, sweepResources); err != nil {
 		errs = multierror.Append(errs, fmt.Errorf("error sweeping FSx Backups for %s: %w", region, err))
 	}
 
@@ -146,7 +159,7 @@ func sweepLustreFileSystems(region string) error {
 		errs = multierror.Append(errs, fmt.Errorf("error listing FSx Lustre File Systems for %s: %w", region, err))
 	}
 
-	if err = sweep.SweepOrchestratorWithContext(ctx, sweepResources); err != nil {
+	if err = sweep.SweepOrchestrator(ctx, sweepResources); err != nil {
 		errs = multierror.Append(errs, fmt.Errorf("error sweeping FSx Lustre File Systems for %s: %w", region, err))
 	}
 
@@ -195,7 +208,7 @@ func sweepOntapFileSystems(region string) error {
 		errs = multierror.Append(errs, fmt.Errorf("error listing FSx ONTAP File Systems for %s: %w", region, err))
 	}
 
-	if err = sweep.SweepOrchestratorWithContext(ctx, sweepResources); err != nil {
+	if err = sweep.SweepOrchestrator(ctx, sweepResources); err != nil {
 		errs = multierror.Append(errs, fmt.Errorf("error sweeping FSx ONTAP File Systems for %s: %w", region, err))
 	}
 
@@ -240,7 +253,7 @@ func sweepOntapStorageVirtualMachine(region string) error {
 		errs = multierror.Append(errs, fmt.Errorf("error listing FSx ONTAP Storage Virtual Machine for %s: %w", region, err))
 	}
 
-	if err = sweep.SweepOrchestratorWithContext(ctx, sweepResources); err != nil {
+	if err = sweep.SweepOrchestrator(ctx, sweepResources); err != nil {
 		errs = multierror.Append(errs, fmt.Errorf("error sweeping FSx ONTAP Storage Virtual Machine for %s: %w", region, err))
 	}
 
@@ -281,6 +294,7 @@ func sweepOntapVolume(region string) error {
 			r := ResourceOntapVolume()
 			d := r.Data(nil)
 			d.SetId(aws.StringValue(v.VolumeId))
+			d.Set("skip_final_backup", true)
 
 			sweepResources = append(sweepResources, sweep.NewSweepResource(r, d, client))
 		}
@@ -292,7 +306,7 @@ func sweepOntapVolume(region string) error {
 		errs = multierror.Append(errs, fmt.Errorf("error listing FSx ONTAP Volume for %s: %w", region, err))
 	}
 
-	if err = sweep.SweepOrchestratorWithContext(ctx, sweepResources); err != nil {
+	if err = sweep.SweepOrchestrator(ctx, sweepResources); err != nil {
 		errs = multierror.Append(errs, fmt.Errorf("error sweeping FSx ONTAP Volume for %s: %w", region, err))
 	}
 
@@ -341,7 +355,7 @@ func sweepOpenZFSFileSystems(region string) error {
 		errs = multierror.Append(errs, fmt.Errorf("error listing FSx OpenZFS File Systems for %s: %w", region, err))
 	}
 
-	if err = sweep.SweepOrchestratorWithContext(ctx, sweepResources); err != nil {
+	if err = sweep.SweepOrchestrator(ctx, sweepResources); err != nil {
 		errs = multierror.Append(errs, fmt.Errorf("error sweeping FSx OpenZFS File Systems for %s: %w", region, err))
 	}
 
@@ -393,7 +407,7 @@ func sweepOpenZFSVolume(region string) error {
 		errs = multierror.Append(errs, fmt.Errorf("error listing FSx OpenZFS Volume for %s: %w", region, err))
 	}
 
-	if err = sweep.SweepOrchestratorWithContext(ctx, sweepResources); err != nil {
+	if err = sweep.SweepOrchestrator(ctx, sweepResources); err != nil {
 		errs = multierror.Append(errs, fmt.Errorf("error sweeping FSx OpenZFS Volume for %s: %w", region, err))
 	}
 
@@ -443,7 +457,7 @@ func sweepWindowsFileSystems(region string) error {
 		errs = multierror.Append(errs, fmt.Errorf("error listing FSx Windows File Systems for %s: %w", region, err))
 	}
 
-	if err = sweep.SweepOrchestratorWithContext(ctx, sweepResources); err != nil {
+	if err = sweep.SweepOrchestrator(ctx, sweepResources); err != nil {
 		errs = multierror.Append(errs, fmt.Errorf("error sweeping FSx Windows File Systems for %s: %w", region, err))
 	}
 
