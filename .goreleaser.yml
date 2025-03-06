@@ -68,13 +68,11 @@ release:
   ids:
     - none
 signs:
-  - args:
-      ["sign", "--dearmor", "--file", "${artifact}", "--out", "${signature}"]
+  - args: ["sign", "--dearmor", "--file", "${artifact}", "--out", "${signature}"]
     artifacts: checksum
     cmd: signore
     signature: ${artifact}.sig
-  - args:
-      ["sign", "--dearmor", "--file", "${artifact}", "--out", "${signature}"]
+  - args: ["sign", "--dearmor", "--file", "${artifact}", "--out", "${signature}"]
     artifacts: checksum
     cmd: signore
     id: key-id
