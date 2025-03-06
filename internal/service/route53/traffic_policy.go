@@ -22,11 +22,8 @@ import (
 	"github.com/hashicorp/terraform-provider-aws/internal/errs/sdkdiag"
 	tfslices "github.com/hashicorp/terraform-provider-aws/internal/slices"
 	"github.com/hashicorp/terraform-provider-aws/internal/tfresource"
-<<<<<<< HEAD
-	"github.com/hashicorp/terraform-provider-aws/names"
-=======
 	"github.com/hashicorp/terraform-provider-aws/internal/verify"
->>>>>>> e461eb28c3 (Add dns record automatic version update support)
+	"github.com/hashicorp/terraform-provider-aws/names"
 )
 
 // @SDKResource("aws_route53_traffic_policy", name="Traffic Policy")
@@ -151,13 +148,21 @@ func updateComputedAttributesOnPublish(_ context.Context, d *schema.ResourceDiff
 	return nil
 }
 
+func updateComputedAttributesOnPublish(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
+	configChanged := hasConfigChanges(d)
+	if configChanged {
+		d.SetNewComputed("version")
+	}
+
+	return nil
+}
+
 func hasConfigChanges(d verify.ResourceDiffer) bool {
 	return d.HasChange("document")
 }
 
 func resourceTrafficPolicyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	var diags diag.Diagnostics
-	conn := meta.(*conns.AWSClient).Route53Client(ctx)
+	conn := meta.(*conns.AWSClient).Route53Conn(ctx)
 	var err error
 
 	if d.HasChange("document") {
@@ -170,11 +175,11 @@ func resourceTrafficPolicyUpdate(ctx context.Context, d *schema.ResourceData, me
 		log.Printf("[INFO] Creating Route53 Traffic Policy version: %s", input)
 		_, err = conn.CreateTrafficPolicyVersionWithContext(ctx, input)
 
-	} else if d.HasChange(names.AttrComment) {
+	} else if d.HasChange("comment") {
 		input := &route53.UpdateTrafficPolicyCommentInput{
 			Id:      aws.String(d.Id()),
-			Version: aws.Int32(int32(d.Get(names.AttrVersion).(int))),
-			Comment: aws.String(d.Get(names.AttrComment).(string)),
+			Version: aws.Int64(int64(d.Get("version").(int))),
+			Comment: aws.String(d.Get("comment").(string)),
 		}
 
 		log.Printf("[INFO] Updating Route53 Traffic Policy comment: %s", input)
